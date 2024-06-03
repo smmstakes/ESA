@@ -11,7 +11,7 @@
 MCP_CAN CAN1(ECU1_CAN1_CS);
 byte can_gear[3] = {0x00, 0x00, 0x00};
 
-char gear = 1;
+char gear = 0;
 char DIN1, DIN2;
 
 void setup() {
@@ -31,24 +31,25 @@ void setup() {
 
 void loop() {
   read_din();
-  delay(500);
+  delay(200);
   send_data();
 }
 
 void read_din(){
   DIN1 = digitalRead(ECU1_DIN1);
+  DIN2 = digitalRead(ECU1_DIN2);
+
   if(DIN1 != HIGH){
-    gear++;
-    while(DIN1 == LOW){
-      DIN1 = digitalRead(ECU1_DIN1);
+    if(gear < 5) gear++;
+    while(digitalRead(ECU1_DIN1) == LOW){
+      delay(10);
     }
   }
 
-  DIN2 = digitalRead(ECU1_DIN2);
   if(DIN2 != HIGH){
-    gear--;
-    while(DIN2 == LOW){
-      DIN2 = digitalRead(ECU1_DIN2);
+    if(gear > 0) gear--;
+    while(digitalRead(ECU1_DIN2) == LOW){
+      delay(10);
     }
   }
 }
