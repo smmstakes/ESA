@@ -11,6 +11,8 @@
 MCP_CAN CAN1(ECU1_CAN1_CS);
 byte can_gear[3] = {0x00, 0x00, 0x00};
 
+unsigned long prevTime = 0;
+
 char gear = 0;
 char DIN1, DIN2;
 
@@ -31,7 +33,6 @@ void setup() {
 
 void loop() {
   read_din();
-  delay(200);
   send_data();
 }
 
@@ -55,11 +56,15 @@ void read_din(){
 }
 
 void send_data(){
+  unsigned long actualTime = millis();
   can_gear[1] = gear;
-  byte sndStat = CAN1.sendMsgBuf(CAN_ID, 0, 3, can_gear);
-  if (sndStat == CAN_OK) {
-    Serial.println("Mensagem 1 enviada com sucesso!");
-  } else {
-    Serial.println("Erro para enviar a mensagem 1...");
+  if(actualTime - prevTime >= 200) {
+    prevTime = actualTime;
+    byte sndStat = CAN1.sendMsgBuf(CAN_ID, 0, 3, can_gear);
+    if (sndStat == CAN_OK) {
+      Serial.println("Mensagem 1 enviada com sucesso!");
+    } else {
+      Serial.println("Erro para enviar a mensagem 1...");
+    }
   }
 }
