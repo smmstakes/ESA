@@ -6,9 +6,10 @@
 #include <mcp_can.h>
 #include <mcp_can_dfs.h>
 
-#define CAN_ID 0x123
 
 MCP_CAN CAN1(ECU1_CAN1_CS);
+#define CAN_ID 0x123
+
 byte can_gear[3] = {0x00, 0x00, 0x00};
 
 unsigned long prevTime = 0;
@@ -27,7 +28,6 @@ void setup() {
   }
   Serial.println("Can send inicializado com sucesso!");
 
-  // 2- Configuracao para transmissao e recepcao de mensagens
   CAN1.setMode(MCP_NORMAL);
 }
 
@@ -63,8 +63,10 @@ void send_data(){
     byte sndStat = CAN1.sendMsgBuf(CAN_ID, 0, 3, can_gear);
     if (sndStat == CAN_OK) {
       Serial.println("Mensagem 1 enviada com sucesso!");
+      // Serial.println(can_gear[1]);
     } else {
       Serial.println("Erro para enviar a mensagem 1...");
+      // Serial.println(can_gear[1]);
     }
   }
 }

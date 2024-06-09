@@ -5,7 +5,7 @@
 
 #define CAN_ID 0x123
 
-MCP_CAN CAN4(ECU4_CAN1_CS);
+MCP_CAN CAN4(CAN1_CS_PIN);
 byte dataMsg[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 long unsigned int mId;
 
@@ -23,12 +23,13 @@ void setup() {
 }
 
 void loop() {
-  if(digitalRead(CAN_OK)) {
+  pinMode(CAN_OK, INPUT);
+  while(digitalRead(CAN_OK)) {
     CAN4.readMsgBuf(&mId, 0, 8, dataMsg);
 
-    char gear = dataMsg[1];
+    short gear = dataMsg[1];
     int rpm = (dataMsg[2] << 8) | dataMsg[3];
-    char vel = dataMsg[4];
+    short vel = dataMsg[4];
 
     String msg = "Rotação = " + String(rpm) + ", Velocidade = " + String(vel) + ", Marcha Atual = " + String(gear);
     Serial.println(msg);

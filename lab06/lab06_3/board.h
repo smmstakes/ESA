@@ -90,12 +90,12 @@
 #define ECU2_CAN2_INT CAN_INT_PIN //Interrupt pin
 //ECU3 - CAN1_BUS ou CAN2_BUS
 #define ECU3_CAN1_CS CAN1_CS_PIN //Chip selector (CS)
-#define ECU3_CAN2_CS CAN1_CS_PIN //Chip selector (CS)
+#define ECU3_CAN2_CS CAN2_CS_PIN //Chip selector (CS)
 #define ECU3_CAN1_INT CAN_INT_PIN //Interrupt pin
 #define ECU3_CAN2_INT CAN_INT_PIN //Interrupt pin
 //ECU4 - CAN1_BUS ou CAN2_BUS
 #define ECU4_CAN1_CS CAN1_CS_PIN //Chip selector (CS)
-#define ECU4_CAN2_CS CAN1_CS_PIN //Chip selector (CS)
+#define ECU4_CAN2_CS CAN2_CS_PIN //Chip selector (CS)
 #define ECU4_CAN1_INT CAN_INT_PIN //Interrupt pin
 #define ECU4_CAN2_INT CAN_INT_PIN //Interrupt pin
 /////////////////////////////////////////////////////////////////////////////////

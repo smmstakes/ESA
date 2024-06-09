@@ -11,6 +11,13 @@ MCP_CAN CAN3(ECU3_CAN1_CS);
 byte can_data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 long unsigned int mId;
 
+unsigned long prevGearTime1 = 0;
+unsigned long prevRpmTime1 = 0;
+
+unsigned long prevGearTime2 = 0;
+unsigned long prevRpmTime2 = 0;
+unsigned long prevVelTime2 = 0;
+
 void setup() {
   Serial.begin(115200);
 
@@ -28,11 +35,19 @@ void setup() {
 
 void loop() {
   pinMode(CAN_OK, INPUT);
-  char gear = read_gear();
-  int rpm_max = calc_rpm(gear);
-  
-  int rpm = map(analogRead(ECU3_AIN1), 0, 1023, 0, rpm_max);
-  char vel = calc_vel(gear, rpm);
+  char gear;
+  int rpm_max, rpm;
+
+  unsigned long actualGearTime = millis();
+  if(actualGearTime - prevGearTime1 >= 200) gear = read_gear();
+
+  unsigned long actualRpmTime = millis();
+  if(actualRpmTime - prevRpmTime1 >= 100) {
+    rpm_max = calc_rpm(gear);
+    rpm = map(analogRead(ECU3_AIN1), 0, 1023, 0, rpm_max);
+  }
+
+  unsigned short vel = calc_vel(gear, rpm);
 
   send_msg(gear, rpm, vel);
 }
@@ -99,37 +114,46 @@ int calc_vel(char gear, int rpm) {
       break;
   }
 
-  return ((tire_radius * rpm) / (differential_rate * gear_rate));
+  return (unsigned short) ((tire_radius * rpm) / (differential_rate * gear_rate));
 }
 
 void send_msg(char gear, int rpm, char vel){
-  pinMode(CAN_OK, OUTPUT);
+  // pinMode(CAN_OK, OUTPUT);
 
-  can_data[1] = gear;
+  unsigned long actualGearTime = millis();
+  if(actualGearTime - prevGearTime2 >= 200){
+    can_data[1] = gear;
 
-  byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 8, can_data);
-  if (sndStat == CAN_OK) {
-    Serial.println("Mensagem 1 enviada com sucesso!");
-  } else {
-    Serial.println("Erro para enviar a mensagem 1...");
-  }  
-
-  can_data[2] = (rpm >> 8) & 0xFF;
-  can_data[3] = rpm & 0xFF;
-
-  sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 8, can_data);
-  if (sndStat == CAN_OK) {
-    Serial.println("Mensagem 2 enviada com sucesso!");
-  } else {
-    Serial.println("Erro para enviar a mensagem 2...");
+    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 3, can_data);
+    if (sndStat == CAN_OK) {
+      Serial.println("Mensagem 1 enviada com sucesso!");
+    } else {
+      Serial.println("Erro para enviar a mensagem 1...");
+    } 
   }
 
-  can_data[4] = vel;
+  unsigned long actualRpmTime = millis();
+  if(actualRpmTime - prevRpmTime2 >= 100){
+    can_data[2] = (rpm >> 8) & 0xFF;
+    can_data[3] = rpm & 0xFF;
 
-  sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 8, can_data);
-  if (sndStat == CAN_OK) {
-    Serial.println("Mensagem 3 enviada com sucesso!");
-  } else {
-    Serial.println("Erro para enviar a mensagem 3...");
+    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 4, can_data);
+    if (sndStat == CAN_OK) {
+      Serial.println("Mensagem 2 enviada com sucesso!");
+    } else {
+      Serial.println("Erro para enviar a mensagem 2...");
+    }
+  }
+  
+  unsigned long actualVelTime = millis();
+  if(actualVelTime - prevVelTime2 >= 250){
+    can_data[4] = vel;
+
+    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 5, can_data);
+    if (sndStat == CAN_OK) {
+      Serial.println("Mensagem 3 enviada com sucesso!");
+    } else {
+      Serial.println("Erro para enviar a mensagem 3...");
+    }
   }
 }
