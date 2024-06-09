@@ -32,7 +32,10 @@ TASK(task3) {
 
 TASK(task4) {
 	TaskType task;
-	GetTaskID(&task);
+	StatusType statusTask = GetTaskID(&task);
+	
+	String msg = "Id da Task: " + String(task) + ", Status: " + String(statusTask);
+	Serial.println(msg);
 	
 	TerminateTask();
 }

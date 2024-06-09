@@ -1,10 +1,3 @@
-/* Running the following example:
- * just call goil a first time using the command line:
- * goil --target=avr/arduino/uno --templates=../../../../goil/templates/ blink.oil
- * you may have to update ARDUINO section (l.13) for your configuration.
- *
- */
-
 OIL_VERSION = "2.5" : "test" ;
 
 CPU test {    
@@ -33,8 +26,8 @@ CPU test {
       TASK = task1;
     };
     AUTOSTART = TRUE {
-      ALARMTIME = 500; //activated each 1024 ms
-      CYCLETIME = 500; //activated each 1024 ms
+      ALARMTIME = 500;
+      CYCLETIME = 500;
       APPMODE = stdAppmode;
     };
   };
@@ -45,8 +38,8 @@ CPU test {
       TASK = task2;
     };
     AUTOSTART = TRUE {
-      ALARMTIME = 600; //activated each 1024 ms
-      CYCLETIME = 600; //activated each 1024 ms
+      ALARMTIME = 600;
+      CYCLETIME = 600;
       APPMODE = stdAppmode;
     };
   };
@@ -57,8 +50,8 @@ CPU test {
       TASK = task3;
     };
     AUTOSTART = TRUE {
-      ALARMTIME = 700; //activated each 1024 ms
-      CYCLETIME = 700; //activated each 1024 ms
+      ALARMTIME = 700;
+      CYCLETIME = 700;
       APPMODE = stdAppmode;
     };
   };
@@ -100,7 +93,7 @@ CPU test {
   };
   
   TASK task4 {
-    PRIORITY = 90;
+    PRIORITY = 99;
     AUTOSTART = FALSE;
     ACTIVATION = 1;
     SCHEDULE = FULL;
