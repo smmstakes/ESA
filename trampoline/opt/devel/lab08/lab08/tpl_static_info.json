@@ -51,7 +51,7 @@
       "ACTION" : "ACTIVATETASK",
       "ACTION_S" : 
       {
-        "TASK" : "task1"
+        "TASK" : "task3"
       },
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 
@@ -73,7 +73,7 @@
       "ACTION" : "ACTIVATETASK",
       "ACTION_S" : 
       {
-        "TASK" : "task2"
+        "TASK" : "task4"
       },
       "AUTOSTART" : "true",
       "AUTOSTART_S" : 

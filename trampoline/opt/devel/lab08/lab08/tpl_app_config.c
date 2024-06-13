@@ -872,7 +872,7 @@ VAR(tpl_time_obj, OS_VAR) alarmTask2_alarm_desc = {
 /*-----------------------------------------------------------------------------
  * Alarm alarmTask3 descriptor
  *
- * This alarm does the activation of task task1
+ * This alarm does the activation of task task3
  */
 
 
@@ -883,7 +883,7 @@ CONST(tpl_task_activation_action, OS_CONST) alarmTask3_action = {
   {
     /* action function  */  tpl_action_activate_task
   },
-  /* task id            */  task1_id
+  /* task id            */  task3_id
 };
 
 #define OS_STOP_SEC_CONST_UNSPECIFIED
@@ -927,7 +927,7 @@ VAR(tpl_time_obj, OS_VAR) alarmTask3_alarm_desc = {
 /*-----------------------------------------------------------------------------
  * Alarm alarmTask4 descriptor
  *
- * This alarm does the activation of task task2
+ * This alarm does the activation of task task4
  */
 
 
@@ -938,7 +938,7 @@ CONST(tpl_task_activation_action, OS_CONST) alarmTask4_action = {
   {
     /* action function  */  tpl_action_activate_task
   },
-  /* task id            */  task2_id
+  /* task id            */  task4_id
 };
 
 #define OS_STOP_SEC_CONST_UNSPECIFIED
