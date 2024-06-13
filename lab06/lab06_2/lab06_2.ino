@@ -1,5 +1,3 @@
-// Módulo de Controle do Motor (ECM) #ECU3
-
 #include <SPI.h>
 #include "board.h"
 #include <mcp_can.h>
@@ -38,13 +36,19 @@ void loop() {
   char gear;
   int rpm_max, rpm;
 
-  unsigned long actualGearTime = millis();
-  if(actualGearTime - prevGearTime1 >= 200) gear = read_gear();
+  unsigned long actualTime = millis();
 
-  unsigned long actualRpmTime = millis();
-  if(actualRpmTime - prevRpmTime1 >= 100) {
+  unsigned long actualGearTime = actualTime - prevGearTime1;
+  if(actualGearTime >= 200) {
+    gear = read_gear();
+    prevGearTime1 = actualTime; // Atualiza o tempo para a leitura da marcha
+  }
+
+  unsigned long actualRpmTime = actualTime - prevRpmTime1;
+  if(actualRpmTime >= 100) {
     rpm_max = calc_rpm(gear);
     rpm = map(analogRead(ECU3_AIN1), 0, 1023, 0, rpm_max);
+    prevRpmTime1 = actualTime; // Atualiza o tempo para a leitura do RPM
   }
 
   unsigned short vel = calc_vel(gear, rpm);
@@ -55,8 +59,9 @@ void loop() {
 char read_gear() {
   if(digitalRead(CAN_OK)){
     CAN3.readMsgBuf(&mId, 0, 3, can_data);
-   return can_data[1];
+    return can_data[1];
   }
+  return 0; // Retorna 0 se CAN_OK não estiver HIGH
 }
 
 int calc_rpm(char gear) {
@@ -85,6 +90,8 @@ int calc_rpm(char gear) {
 }
 
 int calc_vel(char gear, int rpm) {
+  if(gear == 0) return 0;
+
   float tire_radius = 0.326;
   float differential_rate = 3.55;
   float gear_rate;
@@ -111,49 +118,53 @@ int calc_vel(char gear, int rpm) {
       break;
 
     default:
+      gear_rate = 1.00; // Valor padrão para evitar divisão por zero
       break;
   }
 
-  return (unsigned short) ((tire_radius * rpm) / (differential_rate * gear_rate));
+  return (unsigned short) ((tire_radius * rpm * 60 * 2 * 3.14) / (differential_rate * gear_rate * 1000));
 }
 
-void send_msg(char gear, int rpm, char vel){
-  // pinMode(CAN_OK, OUTPUT);
+void send_msg(char gear, int rpm, unsigned short vel){
+  unsigned long actualTime = millis();
 
-  unsigned long actualGearTime = millis();
-  if(actualGearTime - prevGearTime2 >= 200){
-    can_data[1] = gear;
+  unsigned long actualGearTime2 = actualTime - prevGearTime2;
+  can_data[1] = gear;
+  if(actualGearTime2 >= 200){
 
-    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 3, can_data);
+    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 8, can_data);
     if (sndStat == CAN_OK) {
       Serial.println("Mensagem 1 enviada com sucesso!");
     } else {
       Serial.println("Erro para enviar a mensagem 1...");
-    } 
+    }
+    prevGearTime2 = actualTime; // Atualiza o tempo para o envio da marcha
   }
 
-  unsigned long actualRpmTime = millis();
-  if(actualRpmTime - prevRpmTime2 >= 100){
-    can_data[2] = (rpm >> 8) & 0xFF;
-    can_data[3] = rpm & 0xFF;
-
-    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 4, can_data);
+  unsigned long actualRpmTime2 = actualTime - prevRpmTime2;
+  can_data[2] = (rpm >> 8) & 0xFF;
+  can_data[3] = rpm & 0xFF;
+  if(actualRpmTime2 >= 100){
+    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 8, can_data);
     if (sndStat == CAN_OK) {
       Serial.println("Mensagem 2 enviada com sucesso!");
     } else {
       Serial.println("Erro para enviar a mensagem 2...");
     }
+    prevRpmTime2 = actualTime; // Atualiza o tempo para o envio do RPM
   }
   
-  unsigned long actualVelTime = millis();
-  if(actualVelTime - prevVelTime2 >= 250){
-    can_data[4] = vel;
+  unsigned long actualVelTime2 = actualTime - prevVelTime2;
+  can_data[4] = vel;
+  if(actualVelTime2 >= 250){
 
-    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 5, can_data);
+    byte sndStat = CAN3.sendMsgBuf(CAN_ID, 0, 8, can_data);
     if (sndStat == CAN_OK) {
       Serial.println("Mensagem 3 enviada com sucesso!");
     } else {
       Serial.println("Erro para enviar a mensagem 3...");
     }
+    prevVelTime2 = actualTime; // Atualiza o tempo para o envio da velocidade
   }
+
 }

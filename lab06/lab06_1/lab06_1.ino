@@ -68,5 +68,6 @@ void send_data(){
       Serial.println("Erro para enviar a mensagem 1...");
       // Serial.println(can_gear[1]);
     }
+    prevTime = actualTime;
   }
 }

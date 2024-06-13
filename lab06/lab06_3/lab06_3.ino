@@ -8,6 +8,7 @@
 MCP_CAN CAN4(CAN1_CS_PIN);
 byte dataMsg[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 long unsigned int mId;
+unsigned long prevTime = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -24,16 +25,22 @@ void setup() {
 
 void loop() {
   pinMode(CAN_OK, INPUT);
-  while(digitalRead(CAN_OK)) {
+  unsigned long actualTime = millis();
+
+  if(digitalRead(CAN_OK) && ((actualTime - prevTime) >= 500)) {
     CAN4.readMsgBuf(&mId, 0, 8, dataMsg);
 
     short gear = dataMsg[1];
     int rpm = (dataMsg[2] << 8) | dataMsg[3];
-    short vel = dataMsg[4];
+    unsigned short vel = dataMsg[4];
 
-    String msg = "Rotação = " + String(rpm) + ", Velocidade = " + String(vel) + ", Marcha Atual = " + String(gear);
-    Serial.println(msg);
+    Serial.print("Rotação = ");
+    Serial.print(rpm);
+    Serial.print(", Velocidade = ");
+    Serial.print(vel);
+    Serial.print(", Marcha Atual = ");
+    Serial.println(gear);
+
+    prevTime = actualTime;
   }
-
-  delay(500);
 }
